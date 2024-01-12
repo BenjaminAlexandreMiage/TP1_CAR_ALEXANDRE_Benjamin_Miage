@@ -6,6 +6,9 @@ public class ServeurFTP {
 
     public static void main(String[] args) throws IOException{
 
+        String login1 = "Benjamin";
+        String mdp1 = "a";
+
          System.out.print("Serveur prêt à accepter des connexions sur le port 2121");
         
         // On crée le socket du serveur
@@ -26,7 +29,24 @@ public class ServeurFTP {
         //On attend le prochain message 
         String str = scanner.nextLine();
 
+        if(str.equals("USER "+login1)){
+            System.out.print("\n");
+            System.out.print(str);
+            out = s2.getOutputStream();
+            str1 = "331 login is okay\r\n";
+            out.write(str1.getBytes());
+        }
+
+        str = scanner.nextLine();
         
-        
+        if(str.equals("PASS "+mdp1)){
+            System.out.print("\n");
+            System.out.print(str);
+            out = s2.getOutputStream();
+            str1 = "230 mdp is okay\r\n";
+            out.write(str1.getBytes());
+        }
+
+        str = scanner.nextLine();
     }
 }
