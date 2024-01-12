@@ -45,8 +45,20 @@ public class ServeurFTP {
             out = s2.getOutputStream();
             str1 = "230 mdp is okay\r\n";
             out.write(str1.getBytes());
+
+            str = scanner.nextLine();
         }
 
-        str = scanner.nextLine();
+        while(true){
+            if(str.equals("QUIT")){
+                System.out.print("Client déconnecté");
+            }
+            else{
+                out = s2.getOutputStream();
+                str1 = "500 commande non reconnu\r\n";
+                out.write(str1.getBytes());
+            }
+        }
+
     }
 }
