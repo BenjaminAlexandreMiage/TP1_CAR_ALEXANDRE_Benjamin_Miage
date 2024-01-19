@@ -16,6 +16,8 @@ public class ServeurFTP {
         // On crée le socket du serveur
         ServerSocket serv = new ServerSocket(2121) ;
 
+        ServerSocket servData;
+
         // On récupère le socket lors de la connexion 
         Socket s2 = serv.accept();
 
@@ -104,17 +106,20 @@ public class ServeurFTP {
                 str1 = "200 Commande bin réalisé avec succès\r\n";
                 out.write(str1.getBytes());
             }
-            
+
             else if(str.equals("EPSV")){
+
                 System.out.print("\n");
                 System.out.print(str);
-                str1 = "200 EPSV ok\r\n";
+                servData = new ServerSocket(2424);
+                str1 = "229 Entering Extended Passive Mode (|||2424|) \r\n";
                 out.write(str1.getBytes());
             }
 
-            else if(str.equals("PASV")){
-                str1 = "227 Entering Passive Mode (127,0,0,1,21,21)";
-                out.write(str1.getBytes());
+            else if(str.equals("RETR im.jpg")){
+            
+                dataConnexion(servData,out);
+
             }
 
             else{
@@ -122,9 +127,17 @@ public class ServeurFTP {
                 str1 = "500 commande non reconnu\r\n";
                 out.write(str1.getBytes());
                 System.out.print("\n");
-                System.out.print(str);
+                System.out.print("message non traité : "+str);
             }
         }
 
+    }
+
+    private static void dataConnexion(ServerSocket servData,OutputStream outCommande) throws IOException{
+
+        Socket socketData = servData.accept();
+    
+        String str1 = "150 connexion établie";
+        outCommande.write(str1.getBytes());
     }
 }
