@@ -61,7 +61,21 @@ public class ServeurFTP {
         else{
             str1 = "430 password invalide\r\n";
             out.write(str1.getBytes());
-        } 
+        }
+
+        str = scanner.nextLine();
+
+        if(str.equals("SYST")){
+                str1 = "215 UNIX system type\r\n";
+                out.write(str1.getBytes());
+            }
+
+        str = scanner.nextLine();
+
+        if(str.equals("FEAT")){
+                str1 = "211 system status\r\n";
+                out.write(str1.getBytes());
+            }
 
         //Si tout est valide, on lance la boucle infinie
         while(boucle){
@@ -83,11 +97,32 @@ public class ServeurFTP {
                 //On arrete la boucle
                 boucle = false;
             }
-            if(str.equals("TYPE I")){
+
+            else if(str.equals("TYPE I")){
                 System.out.print("\n");
                 System.out.print(str);
                 str1 = "200 Commande bin réalisé avec succès\r\n";
                 out.write(str1.getBytes());
+            }
+            
+            else if(str.equals("EPSV")){
+                System.out.print("\n");
+                System.out.print(str);
+                str1 = "200 EPSV ok\r\n";
+                out.write(str1.getBytes());
+            }
+
+            else if(str.equals("PASV")){
+                str1 = "227 Entering Passive Mode (127,0,0,1,21,21)";
+                out.write(str1.getBytes());
+            }
+
+            else{
+                // Si on recoit une commande inconnue (pour le moment autre que 'quit')
+                str1 = "500 commande non reconnu\r\n";
+                out.write(str1.getBytes());
+                System.out.print("\n");
+                System.out.print(str);
             }
         }
 
