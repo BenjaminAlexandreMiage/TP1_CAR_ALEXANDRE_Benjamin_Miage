@@ -83,9 +83,10 @@ public class ServeurFTP {
                 //On arrete la boucle
                 boucle = false;
             }
-            else{
-                // Si on recoit une commande inconnue (pour le moment autre que 'quit')
-                str1 = "500 commande non reconnu\r\n";
+            if(str.equals("TYPE I")){
+                System.out.print("\n");
+                System.out.print(str);
+                str1 = "200 Commande bin réalisé avec succès\r\n";
                 out.write(str1.getBytes());
             }
         }
