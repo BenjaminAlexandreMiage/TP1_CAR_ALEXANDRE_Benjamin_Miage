@@ -110,6 +110,7 @@ public class ServeurFTP {
                 out.write(str1.getBytes());
             }
 
+
             // Si la commande est 'get' on reçoit ce premier message 
             else if(str.equals("EPSV")){
                 System.out.print("\n");
@@ -167,6 +168,8 @@ public class ServeurFTP {
                         //Message pour le client
                         String reponse = "226 Fichier correctement transféré\r\n";
                         out.write(reponse.getBytes());
+
+                        dataSocket.close();
                     }
                 // Cas ou le fichier n'est pas trouvé
                 } else {
@@ -179,8 +182,55 @@ public class ServeurFTP {
                 out.write(response.getBytes());
             }
                 
+                servData.close();
 
             }
+
+            // Pour mettre en mode ascii
+            else if(str.equals("TYPE A")){
+                System.out.print("\n");
+                System.out.print(str);
+                //Message pour le client
+                str1 = "200 Mode ascii validé\r\n";
+                //On envoie le message au client
+                out.write(str1.getBytes());
+            }
+
+            else if(str.startsWith("LIST")){
+                
+                //Le serverSocket accept la connexion du socket
+                Socket dataSocket = servData.accept(); 
+
+                // Va permettre de récupère chaque partie du message 
+                String[] coupageDuMessage = str.split(" ");
+
+                try(
+
+                    OutputStream dataOut = dataSocket.getOutputStream()){
+
+                        //Message pour le client
+                        String dataReponse = "150 connexion de données accepté\r\n";
+                        out.write(dataReponse.getBytes());
+
+                        String cheminRepertoire = System.getProperty("user.dir");
+
+                        File repertoireCourant = new File(cheminRepertoire);
+                        File listeFichier [] = repertoireCourant.listFiles();
+
+                        for(File item : listeFichier){
+                            String reponseFichier = item.getName()+"\r\n";
+                            dataOut.write(reponseFichier.getBytes());
+                        }
+
+                        String reponse = "226 affichage des fichiers réussie\r\n";
+                        out.write(reponse.getBytes());
+                }
+        
+                dataSocket.close();
+                servData.close();        
+            }
+
+
 
             else{
                 // Si on recoit une commande inconnue (pour le moment autre que 'quit')
