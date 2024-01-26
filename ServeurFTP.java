@@ -213,9 +213,13 @@ public class ServeurFTP {
                         out.write(dataReponse.getBytes());
 
                         String cheminRepertoire = System.getProperty("user.dir");
-
                         File repertoireCourant = new File(cheminRepertoire);
                         File listeFichier [] = repertoireCourant.listFiles();
+
+                        if(coupageDuMessage.length == 2){
+                            listeFichier = new File[1];
+                            listeFichier[0] = new File(repertoireCourant+"/"+coupageDuMessage[1]);
+                        }
 
                         for(File item : listeFichier){
                             String reponseFichier = item.getName()+"\r\n";
