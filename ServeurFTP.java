@@ -234,7 +234,31 @@ public class ServeurFTP {
                 servData.close();        
             }
 
+            else if(str.startsWith("CWD")){
+  
+                String[] coupageDuMessage = str.split(" ");
 
+                if (coupageDuMessage.length == 2){
+
+                    String cheminRepertoire = System.getProperty("user.dir")+"/"+coupageDuMessage[1];
+                    File repertoireCourant = new File(cheminRepertoire);
+                        
+                    //Cas où on trouve le dossier
+                    if(repertoireCourant.exists() && repertoireCourant.isDirectory()){
+
+                        System.setProperty("user.dir",cheminRepertoire);
+                        String reponse = "200 accès au dossier réussie\r\n";
+                        out.write(reponse.getBytes());
+                    }
+                    //Cas où on ne trouve pas le dossier
+                    else{
+                        String reponse = "500 le dossier n'existe pas\r\n";
+                        out.write(reponse.getBytes());
+                    }
+
+                }
+
+            }
 
             else{
                 // Si on recoit une commande inconnue (pour le moment autre que 'quit')
