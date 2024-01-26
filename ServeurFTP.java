@@ -4,6 +4,8 @@ import java.util.*;
 
 public class ServeurFTP {
 
+    private static ServerSocket servData;
+
     public static void main(String[] args) throws IOException{
 
         //Création brute d'un login et mot de passe
@@ -15,8 +17,6 @@ public class ServeurFTP {
         
         // On crée le socket du serveur
         ServerSocket serv = new ServerSocket(2121) ;
-
-        ServerSocket servData;
 
         // On récupère le socket lors de la connexion 
         Socket s2 = serv.accept();
@@ -100,25 +100,85 @@ public class ServeurFTP {
                 boucle = false;
             }
 
+            // Si la commande est 'bin'
             else if(str.equals("TYPE I")){
                 System.out.print("\n");
                 System.out.print(str);
+                //Message pour le client
                 str1 = "200 Commande bin réalisé avec succès\r\n";
+                //On envoie le message au client
                 out.write(str1.getBytes());
             }
 
+            // Si la commande est 'get' on reçoit ce premier message 
             else if(str.equals("EPSV")){
-
                 System.out.print("\n");
                 System.out.print(str);
+                // On ouvre un nouveau ServerSocket pour traiter les données
                 servData = new ServerSocket(2424);
+                //Message pour le client
                 str1 = "229 Entering Extended Passive Mode (|||2424|) \r\n";
+                //On envoie le message au client
                 out.write(str1.getBytes());
             }
 
-            else if(str.equals("RETR im.jpg")){
+            // Message reçu après le traitement du message 'EPSV'
+            else if(str.startsWith("RETR")){
             
-                dataConnexion(servData,out);
+            // Va permettre de récupère chaque partie du message 
+            String[] coupageDuMessage = str.split(" ");
+
+            // On vérifie qu'il y a bien un argument à la commande 
+            if (coupageDuMessage.length == 2) {
+
+                //On récupère le nom du fichier 
+                String nomDuFicher = coupageDuMessage[1];
+                // Va permettre d'ouvrir le fichier
+                File fichier = new File(nomDuFicher);
+
+                //Si le fichier existe 
+                if (fichier.exists() && fichier.isFile()) {
+                    try (
+                        
+                        //Le serverSocket accept la connexion du socket
+                        Socket dataSocket = servData.accept(); 
+                        
+                        //Il va permettre de faire une lecture du fichier
+                        FileInputStream fileInputStream = new FileInputStream(fichier);
+
+                        //Va permettre de faire le recopiage du fichier byte par byte
+                        OutputStream dataOut = dataSocket.getOutputStream()) {
+
+                        //Message pour le client
+                        String dataReponse = "150 connexion de données accepté\r\n";
+                        out.write(dataReponse.getBytes());
+
+                        //Tableau pour conserver les bytes du fichier
+                        byte[] tabByte = new byte[1024];
+                        
+                        //Pour utiliser la fonction dataOut
+                        int lectureBytes;
+
+                        //Permet le recopiage du fichier
+                        while ((lectureBytes = fileInputStream.read(tabByte)) != -1) {
+                                dataOut.write(tabByte, 0, lectureBytes);
+                            }
+
+                        //Message pour le client
+                        String reponse = "226 Fichier correctement transféré\r\n";
+                        out.write(reponse.getBytes());
+                    }
+                // Cas ou le fichier n'est pas trouvé
+                } else {
+                    String response = "550 fichier non trouvé\r\n";
+                    out.write(response.getBytes());
+                }
+            // Cas ou aucun argument est donné à la fonction get
+            } else {
+                String response = "501 probleme d'argument\r\n";
+                out.write(response.getBytes());
+            }
+                
 
             }
 
@@ -131,13 +191,5 @@ public class ServeurFTP {
             }
         }
 
-    }
-
-    private static void dataConnexion(ServerSocket servData,OutputStream outCommande) throws IOException{
-
-        Socket socketData = servData.accept();
-    
-        String str1 = "150 connexion établie";
-        outCommande.write(str1.getBytes());
     }
 }

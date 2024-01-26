@@ -39,3 +39,24 @@ Du côté du client, il faut lancer la commande : `> ftp localhost 2121` afin de
 Ensuite il ne reste plus qu'à se connecter avec le bon identifiant et le bon mot de passe.
 
 ---
+
+##  Partie 2 :
+
+**La conception** :
+
+### Mise en place de la fonction bin :
+
+Quand dans l'invite de commande ftp nous lançons la commande `> bin`, le serveur reçoit le message *TYPE I*.
+
+Dans ce cas, le serveur renvoie un message : *200 Commande bin réalisé avec succès" au client*.
+
+### Mise en place de la fonction get :
+
+Avec la commande client `> get UnFichier.txt`, le serveur reçoit le message *EPSV*.
+
+Dans ce cas, le serveur ouvre un nouveau ServerSocket avec par exemple le port *2424* et ensuite envoie le message suivant au client : *229 Entering Extended Passive Mode (|||2424|)*.
+
+Ensuite le client envoie automatiquement le message *RETR UnFicher.txt* au serveur.
+
+Dans ce cas le serveur commence par récupérer le fichier s'il existe, sinon il envoie un message d'erreur au client (soit il manque le nom di fichier en argument ou alors ce dernier n'existe pas).
+Si le fichier existe, on ouvre le fichier en lecture et on envoie au client que l'on accepte la connexion puis on copie le fichier et à la fin le serveur envoie au client le message suivant : *226 Fichier correctement transféré* .
