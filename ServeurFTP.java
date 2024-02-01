@@ -5,12 +5,16 @@ import java.util.*;
 public class ServeurFTP {
 
     private static ServerSocket servData;
+    private static String cheminRepertoireServeur;
 
     public static void main(String[] args) throws IOException{
 
         //Création brute d'un login et mot de passe
         String login1 = "Benjamin";
         String mdp1 = "a";
+
+        //On récupère le chemin courant du serveur
+        String cheminRepertoireServeur = System.getProperty("user.dir");
 
         //On affiche que le serveur est prêt (et son port)
         System.out.print("Serveur prêt à accepter des connexions sur le port 2121");
@@ -238,7 +242,15 @@ public class ServeurFTP {
   
                 String[] coupageDuMessage = str.split(" ");
 
-                if (coupageDuMessage.length == 2){
+                if (coupageDuMessage.length == 1){
+
+                    File repertoireCourant = new File(cheminRepertoireServeur);
+                    System.setProperty("user.dir",cheminRepertoireServeur);
+                    String reponse = "200 accès au dossier réussie\r\n";
+                    out.write(reponse.getBytes());
+                }
+
+                else if (coupageDuMessage.length == 2){
 
                     String cheminRepertoire = System.getProperty("user.dir")+"/"+coupageDuMessage[1];
                     File repertoireCourant = new File(cheminRepertoire);
