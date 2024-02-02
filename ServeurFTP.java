@@ -47,27 +47,29 @@ public class ServeurFTP {
             out = s2.getOutputStream();
             str1 = "331 login is okay\r\n";
             out.write(str1.getBytes());
+
+            //On attend le prochain message (le mot de passe)
+            str = scanner.nextLine();
+        
+            //Si le message est bien le mot de passe valide, on envoie que la réponse est valide, sinon on envoie l'erreur
+            if(str.equals("PASS "+mdp1)){
+                System.out.print("\n");
+                System.out.print(str);
+                out = s2.getOutputStream();
+                str1 = "230 mdp is okay\r\n";
+                out.write(str1.getBytes());
+            }
+            else{
+                str1 = "430 password invalide\r\n";
+                out.write(str1.getBytes());
+            }
         }
         else{
             str1 = "430 Login invalide\r\n";
             out.write(str1.getBytes());
         } 
 
-        //On attend le prochain message (le mot de passe)
-        str = scanner.nextLine();
-        
-        //Si le message est bien le mot de passe valide, on envoie que la réponse est valide, sinon on envoie l'erreur
-        if(str.equals("PASS "+mdp1)){
-            System.out.print("\n");
-            System.out.print(str);
-            out = s2.getOutputStream();
-            str1 = "230 mdp is okay\r\n";
-            out.write(str1.getBytes());
-        }
-        else{
-            str1 = "430 password invalide\r\n";
-            out.write(str1.getBytes());
-        }
+    
 
 
         //Si tout est valide, on lance la boucle infinie
