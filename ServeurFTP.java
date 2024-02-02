@@ -284,6 +284,29 @@ public class ServeurFTP {
 
             }
 
+
+            else if(str.equals("PING")){
+                str1 = "200 PING command ok\r\n";
+                out.write(str1.getBytes());
+                System.out.print("\n");
+                System.out.print("PING receive");
+
+                str1 = "PONG\r\n";
+                out.write(str1.getBytes());
+    
+            }
+
+            else if (str.equals("200 PONG command ok")){
+                System.out.print("\n");
+                System.out.print("200 PONG command ok");
+            }
+
+            else if (str.equals("502 Unknown command")){
+                System.out.print("\n");
+                System.out.print("502 Unknown command");
+            }
+
+
             // Si on recoit une commande inconnue (pour le moment autre que 'quit')
             else{
                 str1 = "500 commande non reconnu\r\n";
