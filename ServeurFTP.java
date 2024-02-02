@@ -119,7 +119,7 @@ public class ServeurFTP {
                 // On ouvre un nouveau ServerSocket pour traiter les données
                 servData = new ServerSocket(2424);
                 //Message pour le client
-                str1 = "229 Entering Extended Passive Mode (|||2424|) \r\n";
+                str1 = "229 Entering Extended Passive Mode (|||2424|)\r\n";
                 //On envoie le message au client
                 out.write(str1.getBytes());
             }
@@ -304,6 +304,69 @@ public class ServeurFTP {
             else if (str.equals("502 Unknown command")){
                 System.out.print("\n");
                 System.out.print("502 Unknown command");
+            }
+
+            else if(str.startsWith("LINE")){
+
+                System.out.print("\n");
+                System.out.print(str);
+            
+                String[] coupageDuMessage = str.split(" ");
+
+                if (coupageDuMessage.length==3){
+
+                    String nomDuFicher = coupageDuMessage[1];
+                    int numLigneChoisie = Integer.valueOf(Integer.valueOf(coupageDuMessage[2]));
+                    File fichier = new File(nomDuFicher);
+
+                    if (fichier.exists() && fichier.isFile()) {
+                
+                        
+                        Socket dataSocket = servData.accept(); 
+                        FileInputStream fileInputStream = new FileInputStream(fichier);
+                        OutputStream dataOut = dataSocket.getOutputStream();
+            
+                        String dataReponse = "150 connexion de données accepté\r\n";
+                        out.write(dataReponse.getBytes());
+
+                        FileReader fileReader = new FileReader(nomDuFicher);
+                        BufferedReader reader = new BufferedReader(fileReader);
+
+                        int numLigne = 1;
+
+                        String line = reader.readLine();
+
+                        while (line != null){
+
+                            if(numLigne==numLigneChoisie){
+                
+                                String ligne = line+"\r\n";
+                                out.write(ligne.getBytes());
+
+                                numLigne ++;
+                                line = reader.readLine();
+                            }
+                            else{
+                                numLigne ++;
+                                line = reader.readLine();
+                            }
+
+                    }
+                        
+                    String reponse = "226 Fichier correctement transféré\r\n";
+                    out.write(reponse.getBytes());
+
+                    dataSocket.close();
+                    
+                }
+                else{
+                    String reponse = "500 fichier non trouvé\r\n";
+                    out.write(reponse.getBytes());
+                }
+
+                }
+                
+
             }
 
 
