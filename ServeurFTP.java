@@ -1,6 +1,7 @@
 import java.net.*;
 import java.io.*;
 import java.util.*;
+import java.nio.file.*; 
 
 public class ServeurFTP {
 
@@ -15,6 +16,8 @@ public class ServeurFTP {
 
         //On récupère le chemin courant du serveur
         String cheminRepertoireServeur = System.getProperty("user.dir");
+        Path path = Paths.get(cheminRepertoireServeur);
+        System.out.print(path.normalize());
 
         //On affiche que le serveur est prêt (et son port)
         System.out.print("Serveur prêt à accepter des connexions sur le port 2121");
@@ -59,11 +62,13 @@ public class ServeurFTP {
                 str1 = "230 mdp is okay\r\n";
                 out.write(str1.getBytes());
             }
+            //Si le mot de passe est invalide
             else{
                 str1 = "430 password invalide\r\n";
                 out.write(str1.getBytes());
             }
         }
+        //Si le login est invalide
         else{
             str1 = "430 Login invalide\r\n";
             out.write(str1.getBytes());
@@ -286,28 +291,30 @@ public class ServeurFTP {
 
             }
 
-
+            //Si on reçoit la commande PING
             else if(str.equals("PING")){
                 str1 = "200 PING command ok\r\n";
                 out.write(str1.getBytes());
                 System.out.print("\n");
                 System.out.print("PING receive");
-
+                //On répond PONG
                 str1 = "PONG\r\n";
                 out.write(str1.getBytes());
     
             }
 
+            //Si la commande PONG est bien reçu par le client
             else if (str.equals("200 PONG command ok")){
                 System.out.print("\n");
                 System.out.print("200 PONG command ok");
             }
-
+            //Si la commande PONG n'est pas reçu par le client
             else if (str.equals("502 Unknown command")){
                 System.out.print("\n");
                 System.out.print("502 Unknown command");
             }
 
+            //Si on reçoit la commande Line 
             else if(str.startsWith("LINE")){
 
                 System.out.print("\n");
@@ -315,15 +322,18 @@ public class ServeurFTP {
             
                 String[] coupageDuMessage = str.split(" ");
 
+                //On vérifie qu'il y a bien trois arguments
                 if (coupageDuMessage.length==3){
 
+                    //On récupère le nom du fichier et le numéro de la ligne 
                     String nomDuFicher = coupageDuMessage[1];
                     int numLigneChoisie = Integer.valueOf(Integer.valueOf(coupageDuMessage[2]));
                     File fichier = new File(nomDuFicher);
 
+                    //Si le fichier existe
                     if (fichier.exists() && fichier.isFile()) {
                 
-                        
+                        //On accepte la nouvelle connexion
                         Socket dataSocket = servData.accept(); 
                         FileInputStream fileInputStream = new FileInputStream(fichier);
                         OutputStream dataOut = dataSocket.getOutputStream();
@@ -331,23 +341,28 @@ public class ServeurFTP {
                         String dataReponse = "150 connexion de données accepté\r\n";
                         out.write(dataReponse.getBytes());
 
+                        //Pour nous permettre de lire les lignes
                         FileReader fileReader = new FileReader(nomDuFicher);
                         BufferedReader reader = new BufferedReader(fileReader);
 
                         int numLigne = 1;
 
+                        //Lit la première ligne
                         String line = reader.readLine();
 
                         while (line != null){
-
+                            
+                            //Si c'est le numéro de la ligne que l'on souhaite
                             if(numLigne==numLigneChoisie){
-                
+                                
+                                //On envoie au client le contenue de la ligne
                                 String ligne = line+"\r\n";
                                 out.write(ligne.getBytes());
 
                                 numLigne ++;
                                 line = reader.readLine();
                             }
+                            //Si ce n'est pas le numéro de la ligne que l'on souhaite
                             else{
                                 numLigne ++;
                                 line = reader.readLine();
@@ -361,6 +376,7 @@ public class ServeurFTP {
                     dataSocket.close();
                     
                 }
+                //Si le fichier n'est pas trouvé
                 else{
                     String reponse = "500 fichier non trouvé\r\n";
                     out.write(reponse.getBytes());

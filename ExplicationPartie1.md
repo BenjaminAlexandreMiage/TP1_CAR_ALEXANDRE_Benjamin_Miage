@@ -2,11 +2,11 @@
 *MIAGE 1*
 *Groupe 2*
 
-## Compte-Rendu du TP1 : 
+## Compte-Rendu du TP1-Partie 1 : 
 
 ---
 
-##  Partie 1 : 
+## Scénario 1 : 
 
 **Le scénario** : *Un utilisateur doit pouvoir se connecter avec un login et un mot de passe, et utiliser la commande quit pour se déconnecter* 
 
@@ -40,7 +40,7 @@ Ensuite il ne reste plus qu'à se connecter avec le bon identifiant et le bon mo
 
 ---
 
-##  Partie 2 :
+## Scénario 2 : 
 
 **La conception** :
 
@@ -60,3 +60,29 @@ Ensuite le client envoie automatiquement le message *RETR UnFicher.txt* au serve
 
 Dans ce cas le serveur commence par récupérer le fichier s'il existe, sinon il envoie un message d'erreur au client (soit il manque le nom di fichier en argument ou alors ce dernier n'existe pas).
 Si le fichier existe, on ouvre le fichier en lecture et on envoie au client que l'on accepte la connexion puis on copie le fichier et à la fin le serveur envoie au client le message suivant : *226 Fichier correctement transféré* .
+
+---
+
+## Scénario 3 : 
+
+
+### Mise en place de la gestion de : LIST (pour la commande DIR)
+
+J'ai utilisé la fonction `System.getProperty("user.dir")` afin d'obtenir le path du serveur.
+Ensuite en fonction du paramètre de la commande on ne réalise pas la même chose : 
+
+* Sans argument : 
+
+On va afficher tout les fichier présent dans le répertoire on nous nous trouvons.
+
+* Avec argument : 
+
+On va afficher le fichier ciblé par l'argument si ce dernier existe 
+
+### Mise en place de la gestion de : CWD (pour la commande CD)
+
+Elle ressemble fortement au mécanisme de la fonction DIR mais on va utiliser la fonction `System.setProperty("user.dir",arg);` afin de modifier le path où nous nous trouvons.
+
+Il me manque le cas ou on réalise la commande `ftp > cd ..` quand nous sommes à la racine du projet.
+
+---
