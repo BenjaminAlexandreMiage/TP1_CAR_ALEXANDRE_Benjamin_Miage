@@ -10,8 +10,8 @@ public class ServeurFTP {
     public static void main(String[] args) throws IOException{
 
         //Création brute d'un login et mot de passe
-        String login1 = "Benjamin";
-        String mdp1 = "a";
+        String login1 = "miage";
+        String mdp1 = "car";
 
         //On récupère le chemin courant du serveur
         String cheminRepertoireServeur = System.getProperty("user.dir");
@@ -69,19 +69,6 @@ public class ServeurFTP {
             out.write(str1.getBytes());
         }
 
-        str = scanner.nextLine();
-
-        if(str.equals("SYST")){
-                str1 = "215 UNIX system type\r\n";
-                out.write(str1.getBytes());
-            }
-
-        str = scanner.nextLine();
-
-        if(str.equals("FEAT")){
-                str1 = "211 system status\r\n";
-                out.write(str1.getBytes());
-            }
 
         //Si tout est valide, on lance la boucle infinie
         while(boucle){
@@ -89,8 +76,18 @@ public class ServeurFTP {
             //On attend le prochain message
             str = scanner.nextLine();
 
+            if(str.equals("SYST")){
+                str1 = "215 UNIX system type\r\n";
+                out.write(str1.getBytes());
+            }
+
+            else if(str.equals("FEAT")){
+                str1 = "211 system status\r\n";
+                out.write(str1.getBytes());
+            }
+
             //Si la commande est 'quit'
-            if(str.equals("QUIT")){
+            else if(str.equals("QUIT")){
 
                 //Message pour le client
                 str1 = "221 deconnexion\r\n";
@@ -185,7 +182,7 @@ public class ServeurFTP {
                 String response = "501 probleme d'argument\r\n";
                 out.write(response.getBytes());
             }
-                
+                //On ferme le nouveau serveur
                 servData.close();
 
             }
@@ -200,6 +197,7 @@ public class ServeurFTP {
                 out.write(str1.getBytes());
             }
 
+            //Pour la commande dir
             else if(str.startsWith("LIST")){
                 
                 //Le serverSocket accept la connexion du socket
@@ -216,32 +214,44 @@ public class ServeurFTP {
                         String dataReponse = "150 connexion de données accepté\r\n";
                         out.write(dataReponse.getBytes());
 
+                        //On récupère la chemin courant
                         String cheminRepertoire = System.getProperty("user.dir");
+                        //On récupère le fichier courant
                         File repertoireCourant = new File(cheminRepertoire);
+                        //On récupère les fichiers du fichier courant
                         File listeFichier [] = repertoireCourant.listFiles();
 
+                        //Si la commande possède 2 arguments
                         if(coupageDuMessage.length == 2){
+                            //On récupère le deuxième argument
                             listeFichier = new File[1];
+                            //On mets dans la liste le fichier que l'on veut
                             listeFichier[0] = new File(repertoireCourant+"/"+coupageDuMessage[1]);
                         }
 
+                        //Pour fichier de la liste on envoie son nom au client
                         for(File item : listeFichier){
                             String reponseFichier = item.getName()+"\r\n";
                             dataOut.write(reponseFichier.getBytes());
                         }
 
+                        //Dernier message pour le client
                         String reponse = "226 affichage des fichiers réussie\r\n";
                         out.write(reponse.getBytes());
                 }
-        
+
+                //On ferme le socket et le serveur des données
                 dataSocket.close();
                 servData.close();        
             }
 
+            //Pour la commande cd
             else if(str.startsWith("CWD")){
-  
+                
+                //On coupe la commande
                 String[] coupageDuMessage = str.split(" ");
 
+                //Si juste la commande CD, on remet le repertoire courant sur celui du serveur 
                 if (coupageDuMessage.length == 1){
 
                     File repertoireCourant = new File(cheminRepertoireServeur);
@@ -250,14 +260,16 @@ public class ServeurFTP {
                     out.write(reponse.getBytes());
                 }
 
+                //Si deux arguments 
                 else if (coupageDuMessage.length == 2){
-
+                    
+                    //On récupère le dossier dans lequel on veut entrer
                     String cheminRepertoire = System.getProperty("user.dir")+"/"+coupageDuMessage[1];
                     File repertoireCourant = new File(cheminRepertoire);
                         
-                    //Cas où on trouve le dossier
+                    //Si on trouve le dossier
                     if(repertoireCourant.exists() && repertoireCourant.isDirectory()){
-
+                        //On change le répertoire courant
                         System.setProperty("user.dir",cheminRepertoire);
                         String reponse = "200 accès au dossier réussie\r\n";
                         out.write(reponse.getBytes());
@@ -272,8 +284,8 @@ public class ServeurFTP {
 
             }
 
+            // Si on recoit une commande inconnue (pour le moment autre que 'quit')
             else{
-                // Si on recoit une commande inconnue (pour le moment autre que 'quit')
                 str1 = "500 commande non reconnu\r\n";
                 out.write(str1.getBytes());
                 System.out.print("\n");
